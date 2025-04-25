@@ -1,0 +1,58 @@
+{
+  "FFactory": {
+    "contractName": "FFactory",
+    "address": "0xc5fd4915762c796616C684f7D8B7c12365956b71",
+    "deployHash": "0xac755cfcff37e3d58598e5ac589dbf8a35db93bb21d930ae49dae0e56970236b",
+    "verifyFlag": true,
+    "execVerifyFlag": true,
+    "isProxy": true
+  },
+  "FRouter": {
+    "contractName": "FRouter",
+    "address": "0xdd0F4Ec5A1fa8949506208c54D3232643e12A67b",
+    "deployHash": "0xe1243368bb9306ef129fb00a5402c5f73ee3be008ff3a96527292aa84cfdb2f1",
+    "verifyFlag": true,
+    "execVerifyFlag": true,
+    "isProxy": true
+  },
+  "BondingTax": {
+    "contractName": "BondingTax",
+    "address": "0xa9E41291c00c0Eb3B507822963fFc3fd2807cBa8",
+    "deployHash": "0x6d088a4a91d08e29ce46e619360d416edc00e431cf7e88f367bf3be624c4dc63",
+    "verifyFlag": true,
+    "execVerifyFlag": true,
+    "isProxy": true
+  },
+  "Bonding": {
+    "contractName": "Bonding",
+    "address": "0x66cdd203413970855a5AEe51a7ADD4519F27aC35",
+    "deployHash": "0x3293cb51035fcdba90ed9b80a8d79ab880ef91f57faf93e43ac4c69e06a2e1d2",
+    "verifyFlag": true,
+    "execVerifyFlag": true,
+    "isProxy": true
+  },
+  "AgentFactory": {
+    "contractName": "AgentFactory",
+    "address": "0xF430c5DFbcbAe45d850440C36B388b2e747f1266",
+    "deployHash": "0x0949242f673360d6fa2627ff324ca4ebb70293cfdd337aae1dbca0488eb19fc5",
+    "verifyFlag": true,
+    "execVerifyFlag": true,
+    "isProxy": true
+  },
+  "AgentTokenTest": {
+    "contractName": "AgentToken",
+    "address": "0x369E4b14fa49F7b2b733ee4a4ADCdbF250D5e244",
+    "deployHash": "0xf56f0d0f411c770e5a7462753f6cb6cdf77f0e7add347e78fe2124062f94825b",
+    "verifyFlag": true,
+    "execVerifyFlag": true,
+    "isProxy": true
+  },
+  "AgentTokenImpl": {
+    "contractName": "AgentToken",
+    "address": "0x22c2f38D28485234d8306251Ea3f1AaF9c50bEAe",
+    "deployHash": "0xd3403d403f7c9497d5557c217576793f9dd7a5dadd819742a2d249985b9a6490",
+    "verifyFlag": true,
+    "execVerifyFlag": true,
+    "isProxy": false
+  }
+}

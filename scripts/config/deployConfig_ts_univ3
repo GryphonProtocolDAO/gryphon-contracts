@@ -1,0 +1,321 @@
+import {ethers} from "hardhat";
+import {bigint} from "hardhat/internal/core/params/argumentTypes";
+import {mockAssetToken} from "../mock/mockDeploy";
+import {ZeroAddress} from "ethers";
+
+// Network mappings
+export const NETWORK_BY_CHAIN_ID: Record<number, string> = {
+    56: "bsc",            // Adding BSC mainnet
+    97: "bsc_testnet",     // Adding BSC testnet
+    31337: "localhost"    // Adding localhost
+    // Add more networks as needed
+};
+
+// Contract deployment configuration interface
+export interface ContractDeployConfig {
+    contractName: string;
+    args: any[];
+    verify: boolean;
+    proxy: boolean;
+    deployName: string;
+    initArgs?: any[]; // Array of initialization parameters
+}
+
+// Interface for complete deployment configuration
+export interface DeploymentConfig {
+    contracts: ContractDeployConfig[];
+    // Contract initialization values shared across environments
+    sharedInitParams: {
+        buyTax: number;        // Buy tax in basis points (e.g., 500 = 5%)
+        sellTax: number;       // Sell tax in basis points
+        fee: number;           // Fee in basis (_fee = (fee * 1 ether) / 1000; e.g. 100 = (100 * 1 ether) / 1000 = 0.1 ether)
+        initialSupply: number; // Initial token supply
+        assetRate: number;     // Asset rate for bonding
+        minSwapThreshold: string; // Min threshold for swaps (in ether)
+        maxSwapThreshold: string; // Max threshold for swaps (in ether)
+        maxTx: number;         // Max transaction amount
+        gradThreshold: string; // Graduation threshold (in ether)
+        applicationThreshold: string; // Application threshold (in ether)
+        assetToken: string;    // Asset token address (default to zero address, will be updated during deployment)
+        nonfungiblePositionManager: string; // Non-fungible position manager address
+        swapRouter: string; // Uniswap router address
+        quoterV2: string; // Uniswap quoter address
+        taxAssetToken: string;      // Tax assetToken token address (create v2 pair)
+
+        // Agent Token Supply params
+        agentMaxSupply: number;                    // Maximum token supply
+        agentLpSupply: number;                     // LP pool supply
+        agentVaultSupply: number;                  // Vault supply
+        agentMaxTokensPerWallet: number;           // Max tokens per wallet
+        agentMaxTokensPerTxn: number;              // Max tokens per transaction
+        agentBotProtectionDurationInSeconds: number; // Bot protection duration
+
+        // Agent Token Tax params
+        agentProjectBuyTaxBasisPoints: number;     // Project buy tax basis points (e.g., 300 = 3%)
+        agentProjectSellTaxBasisPoints: number;    // Project sell tax basis points
+        agentTaxSwapThresholdBasisPoints: number;  // Tax swap threshold basis points
+
+        //
+        taxVault?: string; // Tax vault address
+    };
+}
+
+// Configuration by chain ID
+export const deployConfigByChainId: Record<number, DeploymentConfig> = {
+
+    // BSC Mainnet
+    56: {
+        contracts: [
+            {
+                contractName: "FFactory",
+                args: [],
+                verify: false,
+                proxy: true,
+                deployName: "FFactory",
+            },
+            {
+                contractName: "FRouter",
+                args: [],
+                verify: false,
+                proxy: true,
+                deployName: "FRouter",
+            },
+            {
+                contractName: "BondingTax",
+                args: [],
+                verify: false,
+                proxy: true,
+                deployName: "BondingTax",
+            },
+            {
+                contractName: "Bonding",
+                args: [],
+                verify: false,
+                proxy: true,
+                deployName: "Bonding",
+            },
+            {
+                contractName: "AgentFactory",
+                args: [],
+                verify: false,
+                proxy: true,
+                deployName: "AgentFactory",
+            },
+            {
+                contractName: "AgentToken",
+                args: [],
+                verify: false,
+                proxy: false,
+                deployName: "AgentTokenImpl"
+            }
+        ],
+        sharedInitParams: {
+            buyTax: 1,                       // 1%
+            sellTax: 1,                      // 1%
+            fee: 100000,                           // 100 ether
+            initialSupply: 1000000000,            // Initial token supply
+            assetRate: 5000,                    // Asset rate
+            minSwapThreshold: "10.0",           // 10 ETH
+            maxSwapThreshold: "1000.0",          // 1000 ETH
+            maxTx: 100,                      // 100
+            gradThreshold: "125000000",            // 125000000 ETH
+            applicationThreshold: "1250000",       // 1250000 ETH
+            assetToken: "0x0000000000000000000000000000000000000000",  // Will be updated during deployment
+            nonfungiblePositionManager: "0x0000000000000000000000000000000000000000", // Non-fungible position manager address
+            swapRouter: "0x0000000000000000000000000000000000000000", // Uniswap router address
+            quoterV2: "0x0000000000000000000000000000000000000000", // Uniswap quoter address
+            taxAssetToken: "0x0000000000000000000000000000000000000000",      // Tax token address
+
+            // Agent Token Supply params
+            agentMaxSupply: 1000000,
+            agentLpSupply: 750000,
+            agentVaultSupply: 250000,
+            agentMaxTokensPerWallet: 50000,
+            agentMaxTokensPerTxn: 5000,
+            agentBotProtectionDurationInSeconds: 300,
+
+            // Agent Token Tax params
+            agentProjectBuyTaxBasisPoints: 100,      // 1%
+            agentProjectSellTaxBasisPoints: 100,     // 1%
+            agentTaxSwapThresholdBasisPoints: 100    // 1%
+        }
+    },
+
+    // BSC Testnet
+    97: {
+        contracts: [
+            {
+                contractName: "FFactory",
+                args: [],
+                verify: true,
+                proxy: true,
+                deployName: "FFactory",
+            },
+            {
+                contractName: "FRouter",
+                args: [],
+                verify: true,
+                proxy: true,
+                deployName: "FRouter",
+            },
+            {
+                contractName: "BondingTax",
+                args: [],
+                verify: true,
+                proxy: true,
+                deployName: "BondingTax",
+            },
+            {
+                contractName: "Bonding",
+                args: [],
+                verify: true,
+                proxy: true,
+                deployName: "Bonding",
+            },
+            {
+                contractName: "AgentFactory",
+                args: [],
+                verify: true,
+                proxy: true,
+                deployName: "AgentFactory",
+            },
+            {
+                contractName: "AgentToken",
+                args: [],
+                verify: true,
+                proxy: false,
+                deployName: "AgentTokenImpl"
+            }
+        ],
+        sharedInitParams: {
+            buyTax: 1,                       // 1%
+            sellTax: 1,                      // 1%
+            fee: 100000,                           // 100 ether
+            initialSupply: 1000000000,            // Initial token supply
+            assetRate: 5000,                    // Asset rate
+            minSwapThreshold: "10.0",           // 10 ETH
+            maxSwapThreshold: "1000.0",          // 1000 ETH
+            maxTx: 100,                      // 100
+            gradThreshold: "125000000",            // 100 ETH
+            applicationThreshold: "1250000",       // 1 ETH
+            assetToken: "0x0715FBE5F99b72F6eF13FCC48297B42a7E286c05",  // Will be updated during deployment
+            nonfungiblePositionManager: "0x427bf5b37357632377ecbec9de3626c71a5396c1", // Non-fungible position manager address
+            swapRouter: "0x1b81D678ffb9C0263b24A97847620C99d213eB14", // Uniswap v3 router address
+            quoterV2: "0xbC203d7f83677c7ed3F7acEc959963E7F4ECC5C2", // Uniswap v3 quoter address
+            taxAssetToken: "0xf678D8664C493FC6c3b516611FA8f8132e8E3Cc0",      // Tax token address
+
+            // Agent Token Supply params
+            agentMaxSupply: 1000000,
+            agentLpSupply: 750000,
+            agentVaultSupply: 250000,
+            agentMaxTokensPerWallet: 50000,
+            agentMaxTokensPerTxn: 5000,
+            agentBotProtectionDurationInSeconds: 300,
+
+            // Agent Token Tax params
+            agentProjectBuyTaxBasisPoints: 0,      // 1%
+            agentProjectSellTaxBasisPoints: 0,     // 1%
+            agentTaxSwapThresholdBasisPoints: 100    // 1%
+        }
+    },// Localhost
+    31337: {
+        contracts: [
+            {
+                contractName: "FFactory",
+                args: [],
+                verify: false,
+                proxy: true,
+                deployName: "FFactory",
+            },
+            {
+                contractName: "FRouter",
+                args: [],
+                verify: false,
+                proxy: true,
+                deployName: "FRouter",
+            },
+            {
+                contractName: "BondingTax",
+                args: [],
+                verify: false,
+                proxy: true,
+                deployName: "BondingTax",
+            },
+            {
+                contractName: "Bonding",
+                args: [],
+                verify: false,
+                proxy: true,
+                deployName: "Bonding",
+            },
+            {
+                contractName: "AgentFactory",
+                args: [],
+                verify: false,
+                proxy: true,
+                deployName: "AgentFactory",
+            },
+            {
+                contractName: "AgentToken",
+                args: [],
+                verify: false,
+                proxy: false,
+                deployName: "AgentTokenImpl"
+            }
+        ],
+        sharedInitParams: {
+            buyTax: 1,                       // 1%
+            sellTax: 1,                      // 1%
+            fee: 100000,                           // 100 ether
+            initialSupply: 1000000000,            // Initial token supply
+            assetRate: 5000,                    // Asset rate
+            minSwapThreshold: "10.0",           // 10 ETH
+            maxSwapThreshold: "1000.0",          // 1000 ETH
+            maxTx: 100,                      // 100
+            gradThreshold: "125000000",            // 100 ETH
+            applicationThreshold: "1250000",       // 1 ETH
+            assetToken: ZeroAddress,  // Will be updated during deployment
+            nonfungiblePositionManager: ZeroAddress, // Non-fungible position manager address
+            swapRouter: ZeroAddress, // Uniswap router address
+            quoterV2: ZeroAddress, // Uniswap quoter address
+            taxAssetToken: ZeroAddress,      // Tax token address
+
+            // Agent Token Supply params
+            agentMaxSupply: 1000000,
+            agentLpSupply: 750000,
+            agentVaultSupply: 250000,
+            agentMaxTokensPerWallet: 50000,
+            agentMaxTokensPerTxn: 5000,
+            agentBotProtectionDurationInSeconds: 300,
+
+            // Agent Token Tax params
+            agentProjectBuyTaxBasisPoints: 100,      // 1%
+            agentProjectSellTaxBasisPoints: 100,     // 1%
+            agentTaxSwapThresholdBasisPoints: 100,    // 1%
+            taxVault: "0xB727d8468AAfb4a5409B108eb82e2E19A6FeC017"
+        }
+    }
+};
+
+// Get deployment config for the current chain ID
+export const getDeployConfig = async (): Promise<{
+    chainId: number,
+    networkName: string,
+    config: DeploymentConfig
+}> => {
+    const {chainId} = await ethers.provider.getNetwork();
+    const networkName = NETWORK_BY_CHAIN_ID[Number(chainId)] || `unknown-${chainId}`;
+
+    // Get config for this chain or use local if not found
+    const config = deployConfigByChainId[Number(chainId)] || deployConfigByChainId[97];
+
+    if (Number(chainId) === 31337) {
+        config.sharedInitParams.assetToken = await mockAssetToken(networkName);
+    }
+
+    return {
+        chainId: Number(chainId),
+        networkName,
+        config
+    };
+};
